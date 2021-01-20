@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.net.URL?>
+
+<AnchorPane prefHeight="389.0" prefWidth="400.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="view.ConnectController">
+    <children>
+    <TextField fx:id="fieldServerIP" alignment="CENTER" layoutX="55.0" layoutY="77.0" prefHeight="54.0" prefWidth="297.0" promptText="SERVER IP" />
+    <TextField fx:id="fieldPort" alignment="CENTER" layoutX="55.0" layoutY="150.0" prefHeight="54.0" prefWidth="297.0" promptText="PORT" />
+    <Button fx:id="buttonConnect" alignment="CENTER" contentDisplay="CENTER" layoutX="81.0" layoutY="267.0" mnemonicParsing="false" onAction="#connect" styleClass="bigButton" text="connect" />
+    <Label fx:id="labelInfo" alignment="CENTER" contentDisplay="CENTER" layoutX="55.0" layoutY="239.0" prefHeight="19.0" prefWidth="297.0" styleClass="infoLabel" />
+    </children>
+    <stylesheets>
+        <URL value="@style.css" />
+    </stylesheets>
+
+
+
+</AnchorPane>

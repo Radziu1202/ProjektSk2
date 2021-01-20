@@ -1,0 +1,9 @@
+22 serialization::archive 17 0 0 0 0 8 0 0 0 6 adrian 3 1 0
+0 3 adi 6 adrian 6 adrian 6 hubert 3
+1 6 hubert 6 hubert 6 hubert 6 kacper 3
+2 6 kacper 6 kacper 6 kacper 5 kasia 3
+3 5 kasia 5 kasia 5 kasia 4 maks 3
+4 4 maks 4 maks 4 maks 6 michal 3
+5 6 michal 6 michal 6 michal 9 radek1202 3
+6 5 radek 9 radek1202 5 radek 5 tomek 3
+7 5 tomek 5 tomek 5 tomek

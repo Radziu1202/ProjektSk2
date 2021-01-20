@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.canvas.Canvas?>
+<?import controls.LetterTextField?>
+<?import javafx.scene.image.ImageView?>
+<BorderPane maxHeight="700.0" maxWidth="400.0" minHeight="550.0" minWidth="320.0" prefHeight="685.0" prefWidth="400.0" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="view.GUIController">
+<top>
+    <BorderPane>
+        <top>
+            <VBox>
+                <MenuBar>
+                    <menus>
+                        <Menu text="Game">
+                            <items>
+                                <MenuItem onAction="#handleNewGame" text="New" />
+                            </items>
+                        </Menu>
+                    </menus>
+                </MenuBar>
+            </VBox>
+        </top>
+        <center>
+            <VBox>
+                <HBox alignment="CENTER_LEFT" prefHeight="-1.0" prefWidth="-1.0">
+                    <children>
+                        <Label alignment="BOTTOM_LEFT" style="-fx-padding: 10px;" text="Entered:">
+                            <opaqueInsets>
+                                <Insets />
+                            </opaqueInsets></Label>
+                        <TextField fx:id="txtEntered" disable="true">
+                            <opaqueInsets>
+                                <Insets />
+                            </opaqueInsets></TextField>
+                        <Label alignment="CENTER" contentDisplay="CENTER" style="-fx-padding: 10px;" text="New character:" textOverrun="CLIP">
+                            <font>
+                                <Font size="11.0" />
+                            </font></Label>
+                        <LetterTextField fx:id="txtInput" prefWidth="100" />
+
+                    </children>
+                </HBox>
+                <TextArea fx:id="testField"  scrollTop="NaN" disable="" minHeight="50">
+                    <opaqueInsets>
+                        <Insets />
+                    </opaqueInsets>
+                </TextArea>
+                <HBox alignment="CENTER_LEFT" >
+                    <VBox>
+                        <TextField fx:id="rywal1name"/>
+                        <ImageView fx:id="rywal1jpg"  fitHeight="150.0" fitWidth="200.0" />
+                    </VBox>
+                    <VBox>
+                        <TextField fx:id="rywal2name"/>
+                        <ImageView fx:id="rywal2jpg"  fitHeight="150.0" fitWidth="200.0" />
+                    </VBox>
+                    <VBox>
+                        <TextField fx:id="rywal3name"/>
+                        <ImageView fx:id="rywal3jpg"  fitHeight="150.0" fitWidth="200.0" />
+                    </VBox>
+                    <Button fx:id="nextOpponentButton" disable="true" alignment="CENTER" contentDisplay="CENTER" focusTraversable="false" minHeight="40.0" mnemonicParsing="false" onAction="#nextOpponent" prefHeight="40.0" prefWidth="419.0" styleClass="menuButton" text="Next" HBox.hgrow="NEVER" />
+                </HBox>
+
+            </VBox>
+
+        </center>
+    </BorderPane>
+</top>
+<center>
+<Canvas fx:id="canvas" height="320" width="500" />
+</center>
+
+        </BorderPane>

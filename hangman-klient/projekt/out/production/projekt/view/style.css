@@ -1,0 +1,128 @@
+.root {
+    -fx-background-color: #F4F4E8;
+    -fx-font-family: "Lucida Sans";
+    -fx-focus-color: #E6E8E5;
+    -fx-faint-focus-color: #E6E8E5;
+}
+
+.bigButton{
+    -fx-background-color: transparent;
+    -fx-background-radius: 20px;
+    -fx-font-size: 46px;
+}
+
+.bigButton:hover{
+    -fx-text-fill: #A5A1A8;
+    -fx-underline: true;
+}
+
+.smallButton:hover{
+    -fx-text-fill: #A5A1A8;
+    -fx-underline: true;
+}
+
+.smallButton{
+    -fx-background-color: transparent;
+    -fx-background-radius: 20px;
+}
+
+.text-field{
+    -fx-font-weight: bold;
+    -fx-font-size: 20px;
+    -fx-prompt-text-fill: #40C479;
+    -fx-background-color: #32965D;
+    -fx-background-radius: 20px;
+}
+
+.text-field:focused{
+    -fx-effect: dropshadow(three-pass-box, #21854A, 1, 1,1,1);
+}
+
+.check-box .box{
+    -fx-background-color: #32965D;
+    -fx-background-radius: 20px;
+}
+.separator *.line{
+    -fx-border-style: solid;
+    -fx-border-width: 1px;
+    -fx-border-color: #32965D;
+}
+
+.text-area{
+    -fx-background-insets: 0;
+}
+
+.text-area .scroll-pane{
+    -fx-hbar-policy: never;
+    -fx-vbar-policy: never;
+}
+
+.text-area .content {
+    -fx-background-color: #FFFFFF ;
+    -fx-padding: 15px;
+}
+
+.infoLabel{
+    -fx-text-fill: red;
+}
+
+.labelUserName{
+    -fx-background-color: #32965D;
+    -fx-font-size: 20px;
+    -fx-text-fill: #E6E8E5;
+}
+
+.labelDescription{
+    -fx-background-color: #F5F7F4;
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: #E6E8E5;
+}
+
+.menuButton{
+    -fx-background-color: #F5F7F4;
+    -fx-background-radius: 0;
+    -fx-border-width: 1 0 0 0;
+    -fx-border-color: #E6E8E5;
+}
+
+.menuButton:hover{
+    -fx-background-color: #E6E8E5;
+}
+
+.smallTextField{
+    -fx-font-size: 14px;
+    -fx-font-weight: normal;
+}
+
+.list-cell:odd { /* <=== changed to even */
+    -fx-background-color: #E6E8E5;
+}
+
+.list-cell:even { /* <=== changed to even */
+    -fx-background-color: #F5F7F4;
+}
+
+.list-cell:filled:selected:focused, .list-cell:filled:selected {
+    -fx-background-color: #A5A1A8;
+    -fx-text-fill: white;
+}
+
+.searchListView {
+    -fx-selection-bar: #A5A1A8 ;
+    -fx-background-color: #F5F7F4;;
+}
+
+#buttonSend{
+    -fx-background-radius: 5em;
+    -fx-max-height: 20px;
+    -fx-max-width: 20px;
+    -fx-min-height: 20px;
+    -fx-min-width: 20px;
+}
+
+.labelConLost{
+    -fx-background-color: #ba0e0b;
+}
+
+
+

@@ -1,0 +1,21 @@
+101 - logowanie
+102 - wylogowanie
+103 - rejestracja
+104 - dodanie punktu po zgadnięciu litery
+105 - obsługa odbioru informacji o błędzie gracza
+106 - wyslanie informacji o tym ze gracz X jest gotów do gry
+107 - wysylanie nowego słowa
+108 - sprawdzenie czy ktos jeszcze gra 
+109 - rozpoczecie gry
+
+
+101|login|haslo								response: 401|0 lub 401|nick|
+102|login									response: 402|0 lub 402|1
+103|nick|login|haslo						response: 403|0 lub 403|1
+104|login									response: dodanie punktu
+105|login									response: wyslanie informacji do innych graczy
+106|login									response: 406|0 lub 406|<liczba chetnych graczy>
+107|login									response: 408|<slowo> 
+108|login									response: 409|0 lub 409|GoToMenu
+109|login									response: 407|slowo
+
