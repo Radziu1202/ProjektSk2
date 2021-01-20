@@ -261,7 +261,7 @@ void Responder::startGame(){ //metoda odpowiadająca za wysłanie do graczy info
 				klient.second->game->readFile();
 				klient.second->play=true;		//zmieniamy wartosc pola play kazdego z nich 
 				klient.second->game->setKeyWord(word); // ustawiamy wylosowane slowa na slowo klucz kazdego z nich
-				write(klient.second->socket,c,constode.length());
+				write(klient.second->socket,c,code.length());
 			}
 		}
 		pthread_mutex_unlock(&Klient::clients_mutex);
