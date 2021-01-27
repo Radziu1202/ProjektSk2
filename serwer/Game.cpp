@@ -31,7 +31,6 @@ string Game::findRandomWord(list<string> words, list<string> alreadylisted){ //m
 
 list<string> Game::readFile(){ //metoda odczytująca plik ze słowami
     string myText;
-    list<string> slowa;
     ifstream MyReadFile("words.txt");
     while (getline (MyReadFile, myText)) {
         cout<<"dodawane slowo"<<myText<<"koniec slowa"<<endl;
@@ -45,7 +44,9 @@ list<string> Game::readFile(){ //metoda odczytująca plik ze słowami
 
 
 
-list<string> Game::getSlowa(){return this->slowa;}
+const list<string> & Game::getSlowa(){
+    cout<<"ELELE"<<this->slowa.size()<<endl;
+    return this->slowa;}
 
 string Game::getKeyWord(){return this->keyWord;}
 void Game::setSlowa(list<string> newSlowa){

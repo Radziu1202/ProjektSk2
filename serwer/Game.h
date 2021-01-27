@@ -31,7 +31,7 @@ public:
     string findRandomWord(list<string> words, list<string> alreadylisted);
    	
 
-   	list<string> getSlowa();
+   	const list<string> &getSlowa();
 
    	string getKeyWord();
    	void setSlowa(list<string> newSlowa);

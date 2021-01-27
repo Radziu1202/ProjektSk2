@@ -11,7 +11,7 @@ public class Sender {
 
     public Sender(Socket socket) throws IOException {
         System.out.println(socket.getInetAddress());
-
+       // socket.setKeepAlive();
         this.writer = new PrintWriter(socket.getOutputStream(), true);
         this.sep = '|';
     }

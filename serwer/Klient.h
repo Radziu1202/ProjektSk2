@@ -31,7 +31,7 @@ public:
 
 	static void initialize_clients();
 
-	friend class boost::serialization::access;
+	//friend class boost::serialization::access;  //Tu zakomentowane
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{

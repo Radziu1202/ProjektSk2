@@ -100,7 +100,7 @@ public class ResponseHandler {
             LOG.log(Level.INFO, "Server: fail - sign in");
         }
         else {
-            ViewManager.logInController.accessGranted(response[1]);
+            ViewManager.logInController.accessGranted(response[2]);
             LOG.log(Level.INFO, "Server: success - sign in");
         }
     }

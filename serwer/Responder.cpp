@@ -1,4 +1,15 @@
+
 #include "Responder.h"
+
+#define CODE_SEND_MISTAKES "400|"
+#define LOGIN_RESPONSE "401|"
+#define LOGOUT_RESPONSE "402|"
+#define REGISTER_RESPONSE "403|"
+#define CODE_WANTS2PLAY "406|"
+#define CODE_START_GAME "407|"
+#define CODE_NEW_WORD "408|"
+#define CODE_BACK2MENU "409|"
+#define CODE_SEND_SCORE "410|"
 
 using namespace std;
 Responder::Responder(int socket){
@@ -9,34 +20,67 @@ Responder::Responder(int socket){
 Responder::~Responder(){}
 
 
+struct Buffer {
+        Buffer() {data = (char*) malloc(len);}
+        Buffer(const char* srcData, ssize_t srcLen) : len(srcLen) {data = (char*) malloc(len); memcpy(data, srcData, len);}
+        ~Buffer() {free(data);}
+        Buffer(const Buffer&) = delete;
+        void doube() {len*=2; data = (char*) realloc(data, len);}
+        ssize_t remaining() {return len - pos;}
+        char * dataPos() {return data + pos;}
+        char * data;
+        ssize_t len = 64;
+        ssize_t pos = 0;
+    };
+
+
 void Responder::readAndRespond(){
-	//----------------------------------------------------poniżej część metody odpowiedzialna za  odpowiednie  "obrobienie"
-	memset(this->buf, 0 , sizeof this->buf);			// odebranego komunikatu wysyłanego przez klienta
-	while (read(this -> socket, this ->buf, 1000) > 0) {	//np przypisanie do odpowiednich zmiennych takich jak "kod"
-		printf("Received: %s", this->buf);
-		std::string bufo = this->buf;
-		memset(this->buf, 0 , sizeof this->buf);
-		//if(bufo.at(0)=='4') continue;
+	Buffer readBuffer;
+    list<Buffer> dataToWrite;																//dopasowanie
+    ssize_t count;																			// odebranego komunikatu wysyłanego przez klienta
+	while ((count=read(this->socket, readBuffer.dataPos(), readBuffer.remaining()))>0) {	//np przypisanie do odpowiednich zmiennych takich jak "kod"
+		printf("Received: %s ", readBuffer.data);
+		readBuffer.pos += count;
+		string bufo=readBuffer.data;
+		bufo = bufo.substr(0,readBuffer.pos);
+
+        char * eol = (char*) memchr(readBuffer.data, '\n', readBuffer.pos);
+        if(eol == nullptr) {
+            if(0 == readBuffer.remaining())
+                readBuffer.doube();
+        }
+        else{
+            do {
+                auto thismsglen = eol - readBuffer.data + 1;
+                auto nextmsgslen =  readBuffer.pos - thismsglen;
+                memmove(readBuffer.data, eol+1, nextmsgslen);
+                readBuffer.pos = nextmsgslen;
+            } while((eol = (char*) memchr(readBuffer.data, '\n', readBuffer.pos)));
+
+        }
+
+		if(bufo.at(0)=='4') continue;
 		bufo = bufo.substr(0, bufo.length()-1);
 		if(!isalpha(bufo.back()) && !isdigit(bufo.back()) && bufo.back()!='|'){
 			bufo = bufo.substr(0, bufo.length()-1);
-		}
+		} 
+   
 		cout << bufo <<  ", dlugosc:" << bufo.length() << endl;
-
-		//cutout code from received message
 		
 		if(bufo.length() < 4) continue;
 		if(!isdigit(bufo.at(0)) || (!isdigit(bufo.at(1))) || (!isdigit(bufo.at(2))) ||
 			!(bufo.at(3) == '|')) continue;
-		int kod = std::stoi(bufo.substr(0, 3));
+
+		int kod = stoi(bufo.substr(0, 3));
 		cout<<"KOD "<<kod<<endl;
 		bufo = bufo.substr(4, bufo.length() - 4);
+		
 		switch (kod){			//------------------poniżej switch ktory na podstawie kodu wysłanego przez klienta wybiera
 		case 101:				// 				jakie działanie ( metoda) ma nastąpić 
 			login(bufo);
 			break;
 		case 102:
-			logout(bufo);
+			logout();
 			break;
 		case 103:
 			user_register(bufo);
@@ -65,30 +109,31 @@ void Responder::readAndRespond(){
 		}
 
 	}
-
-	if(this -> klient) this->klient->logged_in = false;
+	if(this -> klient) logout();// poprawiono - przy zabiciu procesu klienta logout() zostaje wywołane
 
 }
 
+
 void Responder::login(string buf){  // metoda sprawdzająca czy podane w oknie logowania dane znajdują się w liście klientów
 	
-	std::list<std::string> data = split_string(buf, '|');		
-	std::string login = data.front(); data.pop_front();
-	std::string password = data.front(); data.pop_front();
+	list<string> data = split_string(buf, '|');		
+	string login = data.front(); data.pop_front();
+	string password = data.front(); data.pop_front();
 	cout << "Logowanie: " << login << " " << password<<"KONIEC"<<endl;
 	pthread_mutex_lock(&Klient::clients_mutex); 
-	std::map<string,Klient*>::iterator klient = Klient::CLIENTS.find(login);
+	map<string,Klient*>::iterator klient = Klient::CLIENTS.find(login);
 	if (klient!=Klient::CLIENTS.end() && klient->second->password == password && !klient->second->logged_in)
 	{
 		pthread_mutex_unlock(&Klient::clients_mutex); //dostęp do listy klientów jest chroniony mutexem
 		klient->second->logged_in = true;
 		klient->second->socket = this->socket;
 		this->klient = klient->second;
-		string temp = this->klient->nick + "|" ;
+		string temp ="Udane|" +this->klient->nick + "|" ;
 	
 		if(temp.at(temp.length()-1) == ',') temp = temp.substr(0, temp.length() - 1);
-		cout << "Udane\n";					//jeżeli dane są zgodne z danymi w liście wysyłany jest komunikat o poprawności logowania
-		send_info_code("401|"+temp);
+		cout << "Udane\n";
+									//jeżeli dane są zgodne z danymi w liście wysyłany jest komunikat o poprawności logowania
+		send_info_code(LOGIN_RESPONSE+string(temp));
 
 		return;
 	
@@ -96,7 +141,7 @@ void Responder::login(string buf){  // metoda sprawdzająca czy podane w oknie l
 	else{
 		pthread_mutex_unlock(&Klient::clients_mutex);
 		cout << "Nieudane\n";		//jeżeli dane nie są zgodne z danymi w liście wysyłany jest komunikat o niepoprawnym logowaniu 
-		send_info_code("401|0");
+		send_info_code(LOGIN_RESPONSE+string("0"));
 	}
 	
 	return;
@@ -110,10 +155,9 @@ void Responder::add1point(string bufo){		//metoda dodaje punkt na konto gracza k
 	}
 }
 
-void Responder::logout(string buf){   //metoda zmienia wartości pól gracza podczas wylogowywania (zamknięcia klienta)
+void Responder::logout(){   //metoda zmienia wartości pól gracza podczas wylogowywania (zamknięcia klienta)
 	if (this -> klient && this->klient->logged_in) {
 		cout << "Logout: " << this->klient->login << endl;
-		send_info_code("402|1");
 		this->klient->score=0;			// zeruje jego wynik a nastepnie wysyłą go do innych użytkowników
 		sendScore();
 		this->klient->logged_in = false;		//zmienia wartość "zalogowany" na false
@@ -124,7 +168,6 @@ void Responder::logout(string buf){   //metoda zmienia wartości pól gracza pod
 		pthread_mutex_lock(&Klient::playingClients_mutex); 
 		Klient::PLAYINGCLIENTS.remove(this->klient);	//usuwamy klienta z listy osob majacych wyswietlone okno gry
 		pthread_mutex_unlock(&Klient::playingClients_mutex); 
-		
 		pthread_mutex_lock(&Klient::clients_mutex);		
 		int counter=0;
 		for(auto const& klient : Klient::CLIENTS){			//liczymy ile jest osob ktore są chetne do gry
@@ -132,7 +175,7 @@ void Responder::logout(string buf){   //metoda zmienia wartości pól gracza pod
 				counter++;
 			}
 		}
-		string code = "406|"+ to_string(counter)+"\n";
+		string code = CODE_WANTS2PLAY+ to_string(counter)+"\n";
 		const char* c = code.c_str();
 		for(auto const& klient : Klient::CLIENTS) {		//wysylamy informacje o liczbie chetnych graczy do 
 			if (klient.second->wants2play){				//tych własnie graczy w celu zaktualizowania informacji o liczbie
@@ -150,14 +193,13 @@ void Responder::logout(string buf){   //metoda zmienia wartości pól gracza pod
 		if (counter==0){			// jesli liczba zgadujacych jest równa 0	
 			Game::ENABLE=true;		//to graczy ktorzy zbudowali całą szubienice przenosimy do menu ( wysylajac do nich sygnal o numerze 409)
 			Game::TOGUESS={};		//a także odblokowujemy mozliwosc rozpoczecia rogrywki i usuwamy dotychczasowo wylosowane slowa
-			string code ="409|GoToMenu\n";
+			string code =CODE_BACK2MENU+string("GoToMenu\n");
 			const char* c = code.c_str();
 			for(auto const& klient : Klient::PLAYINGCLIENTS){
 				write(klient->socket,c,code.length());
 			}
 		}
 		pthread_mutex_unlock(&Klient::playingClients_mutex); 
-
 		this->klient->socket = -1;
 		this->klient = NULL;		// usuwamy przypisanie klienta do tego respondera oraz jego gniazdo
 		
@@ -166,7 +208,7 @@ void Responder::logout(string buf){   //metoda zmienia wartości pól gracza pod
 	}
 	else {
 		cout << "Nieudane\n";
-		send_info_code("402|0");
+		send_info_code(LOGOUT_RESPONSE+string("0"));
 		return;
 	}
 
@@ -184,11 +226,11 @@ void Responder::user_register(string buf){  // metoda obsługująca proces rejes
 		cout << "Udane\n";
 		Klient* k = new Klient(nick, login, password);
 		cout<<"created new accout "<<k->login<<endl;
-		send_info_code("403|1");
+		send_info_code(REGISTER_RESPONSE+string("1"));
 	}
 	else{
 		cout << "Nieudane\n";
-		send_info_code("403|0");
+		send_info_code(REGISTER_RESPONSE+string("0"));
 	} 
 	return;
 }
@@ -203,7 +245,7 @@ void Responder::receiveMistake(string login){		//metoda która po odebraniu info
 
 void Responder::sendScore(){	// metoda wysyłająca do graczy mających wyswietlone okno rozgrywki wynika gracza
 	if(this->klient && this-> klient->logged_in && this->klient->play){
-		string code ="410|";
+		string code =CODE_SEND_SCORE;
 		code=code+this->klient->login+"@"+to_string(this->klient->score)+"\n";
 		const char* c = code.c_str();
 		pthread_mutex_lock(&Klient::playingClients_mutex); 
@@ -219,7 +261,7 @@ void Responder::sendScore(){	// metoda wysyłająca do graczy mających wyswietl
 
 void Responder::sendMistakes(){ //metoda wysyła do graczy mających wyswietlone okno rozgrywki liczbe błedow gracza 
 	if(this->klient && this->klient->logged_in && this->klient->play){
-		string code="400|";
+		string code=CODE_SEND_MISTAKES;
 		code=code+this->klient->login+"@"+to_string(this->klient->game->mistakes)+"\n";
 		const char* c = code.c_str();
 		pthread_mutex_lock(&Klient::playingClients_mutex); 
@@ -231,7 +273,8 @@ void Responder::sendMistakes(){ //metoda wysyła do graczy mających wyswietlone
 	}
 }
 
-void Responder::startGame(){ //metoda odpowiadająca za wysłanie do graczy informacji o mozliwosci rozpoczecia gry
+
+ void Responder::startGame(){ //metoda odpowiadająca za wysłanie do graczy informacji o mozliwosci rozpoczecia gry
 	int counter=0;
 		pthread_mutex_lock(&Klient::clients_mutex);   
 		for(auto const& klient : Klient::CLIENTS){
@@ -245,10 +288,11 @@ void Responder::startGame(){ //metoda odpowiadająca za wysłanie do graczy info
 	if (counter>=2 && Game::ENABLE){			//jezeli ta liczba wynosi co najmniej 2 oraz flaga umozliwiajaca gre ma wartość true
 		this->klient->game=new Game();			//gra sie rozpoczyna
 		this->klient->game->readFile();
-		string code ="407|";
+		string code =CODE_START_GAME;
 
-		pthread_mutex_lock(&Game::toguess_mutex); 
-		string word=this->klient->game->findRandomWord(this->klient->game->getSlowa(),Game::TOGUESS); //losujemy slowo
+		pthread_mutex_lock(&Game::toguess_mutex);
+		list<string> slowa_do_zgadniecia=this->klient->game->getSlowa(); 
+		string word=this->klient->game->findRandomWord(slowa_do_zgadniecia,Game::TOGUESS); //losujemy slowo
 		Game::TOGUESS.push_back(word);			//dodajemy je na liste wylosowanych slow ( aby sie nie powtórzyło)
 		pthread_mutex_unlock(&Game::toguess_mutex); 
 		code =code +word +"\n"; 
@@ -258,7 +302,7 @@ void Responder::startGame(){ //metoda odpowiadająca za wysłanie do graczy info
 			if(klient.second->wants2play){				
 				Klient::PLAYINGCLIENTS.push_back(klient.second);
 				klient.second->game=new Game();
-				klient.second->game->readFile();
+				klient.second->game->setSlowa(slowa_do_zgadniecia);
 				klient.second->play=true;		//zmieniamy wartosc pola play kazdego z nich 
 				klient.second->game->setKeyWord(word); // ustawiamy wylosowane slowa na slowo klucz kazdego z nich
 				write(klient.second->socket,c,code.length());
@@ -288,7 +332,7 @@ void Responder::checkIfAnyonePlayin(string login){  //metoda sprawdza czy po prz
 	if (counter ==0){	//jesli nie to przenosimy sie do menu orazy wysylamy komunikat do innych graczy aby zrobili to samo 
 		Game::ENABLE=true;		//oraz odblokowujemy mozliwosc rozpoczecia rozgrywki
 		Game::TOGUESS={};
-		string code ="409|GoToMenu\n";		
+		string code =CODE_BACK2MENU+string("GoToMenu\n");		
 
 		const char* c = code.c_str();
 		pthread_mutex_lock(&Klient::playingClients_mutex); 
@@ -297,22 +341,12 @@ void Responder::checkIfAnyonePlayin(string login){  //metoda sprawdza czy po prz
 		}
 		pthread_mutex_unlock(&Klient::playingClients_mutex); 
 
-		int counter=60;
-	    while (counter >= 1 && Game::ENABLE==true)  //timer który uruchomi koljną gre jesli w ciągu 60 sekund nikt nie rozpocznie nowej gry
-	    {
-	        cout << "\rTime remaining: " << counter << flush;
-	        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-	        counter--;
-	    }
-	    if( Game::ENABLE==true){
-	    	startGame();
-	    }
-
 	}
-	else{send_info_code("409|0");}
+	else{send_info_code(CODE_BACK2MENU+string("0"));}
 
 }
 
+ 
 
 void Responder::sendNewWord(string bufo){		//metoda wysyłająca nowe słowo do wszystkich graczy po tym jak jeden z nich zgadnie obecne słowo
 	
@@ -326,14 +360,15 @@ void Responder::sendNewWord(string bufo){		//metoda wysyłająca nowe słowo do 
 	if (this->klient->game->getKeyWord()==Game::TOGUESS.back()){
 
 		this->klient->guessed++;
-		string code ="408|";
-		//cout<<"rozmiaz toguess "<<Game::TOGUESS.size()<<endl;
+		string code =CODE_NEW_WORD;
 
 		this->klient->score+=2;  //najszybszemu graczowi dodajemy bonus +2pkt 
 		this->klient->game->mistakes=0;		
 		sendScore();		
-		sendMistakes();		
+		sendMistakes();
+		cout<<"ERROR!"<<endl;
 		string newWord=this->klient->game->findRandomWord(this->klient->game->getSlowa(),Game::TOGUESS);
+		cout<<"EROROR@@@"<<endl;
 		Game::TOGUESS.push_back(newWord);
 		code =code +newWord;
 		code=code+"\n";
@@ -369,7 +404,7 @@ void Responder::want2Play(string buf){  //metoda zmienia wartość pola wants2pl
 		}
 
 
-		string code = "406|"+ to_string(counter)+"\n";
+		string code = CODE_WANTS2PLAY+ to_string(counter)+"\n";
 		const char* c = code.c_str();
 		for(auto const& klient : Klient::CLIENTS) {
 			if (klient.second->wants2play){
@@ -381,7 +416,7 @@ void Responder::want2Play(string buf){  //metoda zmienia wartość pola wants2pl
 		return;
 	}
 	cout << "Nieudane\n";
-	send_info_code("406|0");
+	send_info_code(CODE_WANTS2PLAY+string("0"));
 	return;
 }
 
@@ -416,7 +451,7 @@ bool Responder::check_registration_validity(string nick, string login, string pa
 	bool l = login.length() > 1 && !contains(login, separators);
 	bool p = password.length() > 1 && !contains(password, separators);
 	pthread_mutex_lock(&Klient::clients_mutex);
-	std::map<string, Klient*>::iterator klient_it = Klient::CLIENTS.find(login);
+	map<string, Klient*>::iterator klient_it = Klient::CLIENTS.find(login);
 	bool nz = (klient_it == Klient::CLIENTS.end());
 	pthread_mutex_unlock(&Klient::clients_mutex);
 	return n && l && p && nz;

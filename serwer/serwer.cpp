@@ -1,6 +1,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/socket.h>
+#include <netinet/tcp.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
@@ -20,21 +21,21 @@
 #include "Responder.h"
 #include "ServerSerializer.h"
 #include <signal.h>
-#include "Game.h"
+#include <error.h>
 
 
 
-#define SERVER_PORT 1339			
+	
 #define QUEUE_SIZE 7
 bool WORK = true;
-
+int SERVER_PORT;
 //struktura zawierająca dane, które zostaną przekazane do wątku
-struct thread_data_t
+/*struct thread_data_t
 {
-	char buf[1000];
+	char buf[1000];					//TU ZAKOMENTOWANA STRUKTURA
 	int socket;
 };
-
+*/
 
 //funkcja opisującą zachowanie wątku - musi przyjmować argument typu (void *) i zwracać (void *)
 void *ThreadBehavior1(void *t_data){
@@ -46,7 +47,6 @@ void *ThreadBehavior1(void *t_data){
 	resp->readAndRespond();
 
 	delete resp;
-
 	close(socket);
 
 	cout << "Connection lost on socket " << socket << endl;
@@ -75,8 +75,15 @@ void* connection_accepter(void *server_socket){
 }
 
 
-int main(int argc, char* argv[])
+
+
+int main(int argc, char** argv)
 {	
+	if(argc!=2)
+        error(1,0,"Usage: %s <port>", argv[1]);
+
+	SERVER_PORT=atoi(argv[1]);
+	cout<<SERVER_PORT<<endl;
 	int server_socket_descriptor;
 	int bind_result;
 	int listen_result;
@@ -96,6 +103,7 @@ int main(int argc, char* argv[])
 		fprintf(stderr, "%s: Błąd przy próbie utworzenia gniazda..\n", argv[0]);
 		exit(1);
 	}
+
 	setsockopt(server_socket_descriptor, SOL_SOCKET, SO_REUSEADDR, (char*)&reuse_addr_val, sizeof(reuse_addr_val));
 
 	bind_result = bind(server_socket_descriptor, (struct sockaddr*)&server_address, sizeof( sockaddr));
@@ -122,11 +130,14 @@ int main(int argc, char* argv[])
 	char c;
 	while (WORK)
 	{	
+		
 		cout<<Klient::CLIENTS.size()<<endl;
 		cin >> c;
 		if(c == 'c'){
 			s.serialize();
+
 			WORK = false;
+
 		}else if(c == 'k'){
 			for (auto const& x : Klient::CLIENTS){
 				std::cout << *x.second  << endl; 
@@ -151,3 +162,5 @@ int main(int argc, char* argv[])
 	}
 	return(0);
 }
+
+

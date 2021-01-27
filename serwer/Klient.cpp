@@ -23,6 +23,7 @@ Klient::Klient(std::string nick, std::string login, std::string password) {
 	pthread_mutex_unlock(&Klient::clients_mutex);
 }
 
+/*
 std::list<std::string> split_string(std::string text, char sep) {
 	std::string temp;
 	std::list<std::string> list;
@@ -30,10 +31,12 @@ std::list<std::string> split_string(std::string text, char sep) {
 		if (text[i] != sep)
 			temp = temp + text[i];
 		else {
-			list.push_back(std::string(temp));
+			list.push_back(std::string(temp));				//TU ZAKOMENTOWANE
 			temp.clear();
 		}
 	}
 	list.push_back(std::string(temp));
 	return list;
 }
+
+*/

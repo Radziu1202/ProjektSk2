@@ -10,17 +10,3 @@ mysz
 kula
 tornister
 inwalida
-drzwi
-krzeslo
-sufit
-butelka
-szklanka
-okno
-frytki
-obiad
-kolacja
-klamka
-widelec
-talerz
-technik
-studia

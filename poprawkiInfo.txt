@@ -1,0 +1,24 @@
+Uwagi co jeszcze przynajmniej powinniście poprawić w kodzie (sieciowo)
+
+  * [!] nie obsługujecie (jeszcze?) dzielenia / sklejania się wiadomości odbieranych w serwerze
+  	-Odbieranie wiadomości zostało poprawione, wzorowaliśmy się na jednym z plików z zajęć laboratoryjnych.
+  		Responder.cpp:: 23 - 60 
+
+
+  * [ ] co jeśli klient zakończy połączenie nie wysyłając wiadomości '102|' (tylko np. program klienta zostanie zabity)?
+  	- Korekta w Responder.cpp::112 po zabiciu procesu pętla z funkcją read() zostaje opuszczona i następuje proces wylogowywania użytkownika 
+
+  * [ ] co jeśli klient łączy się do serwera ponownie, a serwer widzi pamięta stare połączenie do klienta (bo zostało zerwane a nie zakończone)?
+  	- po wniesieniu poprawki nr 2 po zerwaniu połączenia z klientem zostaje on wylogowany. Próba ponownego połączenia wykonuje się poprawnie
+
+
+  * [ ] Responder.cpp::304: co jeśli w trakcie czekania klient będzie chciał coś zrobić, np. wyjść z aplikacji? kiedy odbierzecie od niego wiadomość? Po 60 sekundach?
+  	- zrezygnowaliśmy z użycia timera odliczającego 60 sekund
+
+  * [ ] Responder.cpp:16,17: jeśli odbierzecie 1000 bajtów, to te linie zrobią buffer overflow
+  	-korekta, wprowadziliśmy strukturę Buffer w klasie Responder.
+
+  * [ ] macie w serwerze port na stałe w kodzie - w programach sieciowych pełniących rolę serwera zostawia się możliwość wyboru innego portu 
+  	- Korekta w serwer.cpp:: 82-85. Numer portu od teraz jest przekazywany jako argument.
+
+  	Oprócz powyższych zostały dodane, mniejsze poprawki na podstawie przesłanych przez Pana wskazówek.

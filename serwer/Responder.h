@@ -12,6 +12,8 @@ using namespace std;
 
 
 class Responder{
+
+
 private:
 	int socket;
 	list<Klient*>* clients;
@@ -22,7 +24,7 @@ private:
 	Klient* klient;
 	
 	void login(string buf);
-	void logout(string buf);
+	void logout();	
 	void user_register(string buf);
 	void want2Play(string buf);
 	void startGame();
@@ -34,7 +36,6 @@ private:
 	void add1point(string bufo);
 	bool check_registration_validity(string nick, string login, string password);
 	void send_info_code(string code);
-	
 
 	static bool contains(string text, char* chars);
 	static list<string> split_string(string text, char sep, bool msg = false);
